@@ -132,6 +132,8 @@ using WebRestaurant.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseIIS();
+
 // Đọc cấu hình từ appsettings.json
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
