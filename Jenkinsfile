@@ -105,7 +105,7 @@ pipeline {
 
 					$siteName = "MySite"
 					$sitePath = "D:\\Web_Restaurant"
-					$sitePort = 89
+					$sitePort = 8089
 
 					if (-not (Test-Path "IIS:\\Sites\\$siteName")) {
 						New-Website -Name $siteName -Port $sitePort -PhysicalPath $sitePath -Force
