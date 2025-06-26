@@ -52,14 +52,70 @@
 // }
 
 pipeline {
-    agent any 
+    agent any
+
     stages {
-        stage ('clone') {
-            steps 
-            {
+        stage('Clone') {
+            steps {
+                echo 'Cloning source code'
                 git branch: 'main', url: 'https://github.com/Trang1711/Web_Restaurant.git'
+            }
+        }
+
+        stage('Restore Packages') {
+            steps {
+                echo 'Restoring NuGet packages...'
+                bat 'dotnet restore'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the project...'
+                bat 'dotnet build --configuration Release'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                echo 'Running unit tests...'
+                bat 'dotnet test --no-build --verbosity normal'
+            }
+        }
+
+        stage('Publish to Folder') {
+            steps {
+                echo 'Publishing to temporary folder...'
+                bat "dotnet publish -c Release -o \"%WORKSPACE%\\publish\""
+            }
+        }
+
+        stage('Copy to IIS Folder') {
+            steps {
+                echo 'Copying to IIS folder...'
+                bat "if not exist D:\\Web_Restaurant mkdir D:\\Web_Restaurant"
+				bat "xcopy /E /Y /I /R %WORKSPACE%\\publish\\* D:\\Web_Restaurant\\"
+            }
+        }
+
+        stage('Ensure IIS Site Exists') {
+            steps {
+                powershell '''
+					Import-Module WebAdministration
+
+					$siteName = "MySite"
+					$sitePath = "D:\\Web_Restaurant"
+					$sitePort = 89
+
+					if (-not (Test-Path "IIS:\\Sites\\$siteName")) {
+						New-Website -Name $siteName -Port $sitePort -PhysicalPath $sitePath -Force
+					} else {
+						Write-Host "Website $siteName already exists"
+					}
+					'''
             }
         }
     }
 }
+
                    
