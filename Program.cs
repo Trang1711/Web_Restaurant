@@ -132,8 +132,6 @@ using WebRestaurant.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseIIS();
-
 // Đọc cấu hình từ appsettings.json
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
@@ -143,6 +141,8 @@ builder.WebHost.UseKestrel(options =>
 {
     options.ListenAnyIP(int.Parse(port)); // Bind tới 0.0.0.0
 });
+
+builder.WebHost.UseIIS();
 
 // Thêm DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
