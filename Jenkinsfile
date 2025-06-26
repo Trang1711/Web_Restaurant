@@ -86,36 +86,48 @@ pipeline {
         stage('Publish to Folder') {
             steps {
                 echo 'Publishing to temporary folder...'
-                bat "dotnet publish -c Release -o \"%WORKSPACE%\\publish\""
+                bat 'dotnet publish -c Release -o "%WORKSPACE%\\publish"'
             }
         }
 
         stage('Copy to IIS Folder') {
             steps {
+                echo 'Stopping IIS...'
+                bat 'iisreset /stop'
+
+                echo 'Cleaning existing deploy folder...'
+                bat 'if exist D:\\Web_Restaurant rd /s /q D:\\Web_Restaurant'
+
+                echo 'Creating IIS folder...'
+                bat 'mkdir D:\\Web_Restaurant'
+
                 echo 'Copying to IIS folder...'
-                bat "if not exist D:\\Web_Restaurant mkdir D:\\Web_Restaurant"
-				bat "xcopy /E /Y /I /R %WORKSPACE%\\publish\\* D:\\Web_Restaurant\\"
+                bat 'xcopy /E /Y /I /R "%WORKSPACE%\\publish\\*" "D:\\Web_Restaurant\\"'
+
+                echo 'Starting IIS again...'
+                bat 'iisreset /start'
             }
         }
 
         stage('Ensure IIS Site Exists') {
             steps {
                 powershell '''
-					Import-Module WebAdministration
+                    Import-Module WebAdministration
 
-					$siteName = "MySite"
-					$sitePath = "D:\\Web_Restaurant"
-					$sitePort = 8089
+                    $siteName = "MySite"
+                    $sitePath = "D:\\Web_Restaurant"
+                    $sitePort = 8089
 
-					if (-not (Test-Path "IIS:\\Sites\\$siteName")) {
-						New-Website -Name $siteName -Port $sitePort -PhysicalPath $sitePath -Force
-					} else {
-						Write-Host "Website $siteName already exists"
-					}
-					'''
+                    if (-not (Test-Path "IIS:\\Sites\\$siteName")) {
+                        New-Website -Name $siteName -Port $sitePort -PhysicalPath $sitePath -Force
+                    } else {
+                        Write-Host "Website $siteName already exists"
+                    }
+                '''
             }
         }
     }
 }
+
 
                    
