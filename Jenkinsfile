@@ -114,7 +114,7 @@ pipeline {
                 powershell '''
                     Import-Module WebAdministration
 
-                    $siteName = "MySite"
+                    $siteName = "Web_Restaurant"
                     $sitePath = "D:\\Web_Restaurant"
                     $sitePort = 8089
 
