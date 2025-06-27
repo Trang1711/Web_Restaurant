@@ -85,6 +85,9 @@ pipeline {
 
         stage('Publish to Folder') {
             steps {
+                echo 'Cleaning old publish folder...'
+                bat 'if exist "%WORKSPACE%\\publish" rd /s /q "%WORKSPACE%\\publish"'
+                
                 echo 'Publishing to temporary folder...'
                 bat 'dotnet publish -c Release -o "%WORKSPACE%\\publish"'
             }
